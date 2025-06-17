@@ -1,0 +1,96 @@
+client1 ===== DUT[eth4(br-lan) =====eth5 ==== pppoe] ==== client2
+
+PPPOE client should be the devive which we test.
+
+After the network configuration. On the server side run "/etc/ppp/pppoe-start" and on the client side run "/etc/init.d/network restart".
+You will see "pppoe-wan" interface on the client side and "pppoe" interface on the server side.
+
+client side:
+
+br-lan    Link encap:Ethernet  HWaddr 00:03:7F:E3:FD:56
+          inet addr:192.168.1.1  Bcast:192.168.1.255  Mask:255.255.255.0
+          inet6 addr: fe80::203:7fff:fee3:fd56/64 Scope:Link
+          inet6 addr: 2aaa::1/64 Scope:Global
+          inet6 addr: fd37:302c:1b8a::1/60 Scope:Global
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+          RX packets:0 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:32 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000
+          RX bytes:0 (0.0 B)  TX bytes:4984 (4.8 KiB)
+
+eth4      Link encap:Ethernet  HWaddr 00:03:7F:E3:FD:56
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+          RX packets:0 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:354 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000
+          RX bytes:0 (0.0 B)  TX bytes:99582 (97.2 KiB)
+
+eth5      Link encap:Ethernet  HWaddr 00:03:7F:89:5C:78
+          inet6 addr: fe80::203:7fff:fe89:5c78/64 Scope:Link
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+          RX packets:538 errors:0 dropped:2 overruns:0 frame:0
+          TX packets:541 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000
+          RX bytes:67487 (65.9 KiB)  TX bytes:63535 (62.0 KiB)
+          Base address:0x4000
+
+pppoe-wan Link encap:Point-to-Point Protocol
+          inet addr:172.31.7.2  P-t-P:172.31.7.1  Mask:255.255.255.255
+          inet6 addr: fe80::68f5:66ca:7a7e:4f14/128 Scope:Link
+          UP POINTOPOINT RUNNING NOARP MULTICAST  MTU:1492  Metric:1
+          RX packets:56 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:71 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:3
+          RX bytes:3440 (3.3 KiB)  TX bytes:5174 (5.0 KiB)
+
+Server side:
+
+br-lan    Link encap:Ethernet  HWaddr 00:03:7F:46:67:EB
+          inet addr:192.168.2.1  Bcast:192.168.2.255  Mask:255.255.255.0
+          inet6 addr: fd48:1f8b:1253::1/60 Scope:Global
+          inet6 addr: fe80::203:7fff:fe46:67eb/64 Scope:Link
+          inet6 addr: 4aaa::1/64 Scope:Global
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+          RX packets:0 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:28 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000
+          RX bytes:0 (0.0 B)  TX bytes:4522 (4.4 KiB)
+
+eth4      Link encap:Ethernet  HWaddr 00:03:7F:46:67:EB
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+          RX packets:0 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:154 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000
+          RX bytes:0 (0.0 B)  TX bytes:39625 (38.6 KiB)
+
+eth5      Link encap:Ethernet  HWaddr 00:03:7F:44:5C:78
+          inet6 addr: fe80::203:7fff:fe44:5c78/64 Scope:Link
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+          RX packets:563 errors:0 dropped:2 overruns:0 frame:0
+          TX packets:608 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000
+          RX bytes:61649 (60.2 KiB)  TX bytes:76479 (74.6 KiB)
+          Base address:0x4000
+
+ppp0      Link encap:Point-to-Point Protocol
+          inet addr:172.31.7.1  P-t-P:172.31.7.2  Mask:255.255.255.255
+          inet6 addr: fe80::29d7:cf9c:e7ff:a188/128 Scope:Link
+          UP POINTOPOINT RUNNING NOARP MULTICAST  MTU:1492  Metric:1
+          RX packets:71 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:56 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:3
+          RX bytes:5174 (5.0 KiB)  TX bytes:3440 (3.3 KiB)
+
+When you want to run the VXLAN tunnel/or any other tunnel on PPPOE, when giving ip link command to create the tunnel, instead of giving the WAN interface give pppoe interface.
+
+PPPOE V6:
+
+PPPOE DUT1
+ifconfig br-lan 2001::1/64 up
+ifconfig pppoe-wan 5001::1/64 up
+ip route add default via 5001::2 dev pppoe-wan
+
+PPPOE DUT2
+ifconfig br-lan 3001::1/64 up
+ifconfig ppp0 5001::2/64 up
+ip route add default via 5001::1 dev ppp0
