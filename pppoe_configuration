@@ -94,3 +94,7 @@ PPPOE DUT2
 ifconfig br-lan 3001::1/64 up
 ifconfig ppp0 5001::2/64 up
 ip route add default via 5001::1 dev ppp0
+
+(LAN to WAN) The DUT1 eth5 will send by adding the PPPOE header. DUT2 eth5 will remove the PPPOE header and send it.
+(WAN to LAN) The DUT2 eth5 will send by adding the PPPOE header. DUT1 eth5 will remove the PPPOE header and send it.
+The point to point connection is established between the eth5 of DUT1 to eth5 of DUT2.
